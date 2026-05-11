@@ -583,22 +583,25 @@
         ['2BR_PLATINUM_HSV_minus_2BR_PLATINUM', '2BR Platinum HSV − 2BR Platinum',
          '2BR_PLATINUM', '2BR_PLATINUM_HSV'],
       ];
+      let renderedDeltas = 0;
       order.forEach(([k, label, baseSku, viewSku]) => {
         const d = deltas[k];
         const v = d?.value_usd;
         if (v == null) {
-          deltasRoot.appendChild(el('div', {}, `${label} = — (insufficient pairs)`));
-          return;
+          return;  // skip empty pairs entirely — no placeholder line for SKUs the deal doesn't have
         }
         const baseN = nBySku[baseSku];
         const viewN = nBySku[viewSku];
         const baseTag = isThin(baseN) ? ` (${baseSku === '1BR_PLATINUM' ? '1BR' : '2BR'} base n=${baseN} — thin)` : '';
-        const text = `${label} = $${v.toFixed(0)} (observed view premium; GM-claimed $50)${baseTag}`;
+        const text = `${label} = $${v.toFixed(0)} (observed view premium)${baseTag}`;
         deltasRoot.appendChild(el('div', {}, text));
+        renderedDeltas += 1;
       });
-      deltasRoot.appendChild(el('div', {
-        style: 'margin-top: 4px; color: var(--muted-2); font-size: 10px;',
-      }, '* = thin sample (n < 3 Sundays); bar fill lightened.'));
+      if (renderedDeltas > 0) {
+        deltasRoot.appendChild(el('div', {
+          style: 'margin-top: 4px; color: var(--muted-2); font-size: 10px;',
+        }, '* = thin sample (n < 3 Sundays); bar fill lightened.'));
+      }
     }
     const nEl = document.getElementById('aka-tier-ladder-n');
     if (nEl) nEl.textContent = String(payload.n_sundays_observed ?? 0);

@@ -17,7 +17,7 @@ window.DASHBOARD_DATA = {
     ],
     "filters_rate_matrix": "property=hr_embarcadero, LOS=1, is_bar=True, rate>0; lowest non-ADA per cell",
     "filters_view_premium": "property=hr_embarcadero, LOS=1, refundable=True; rate-plan-matched (revised 2026-04-26)",
-    "generated": "2026-05-11T12:49:05.959162+00:00",
+    "generated": "2026-05-11T13:05:06.327759+00:00",
     "channels": [
       "direct",
       "hotels_com",

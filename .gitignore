@@ -36,6 +36,14 @@ scraper_lib/scrape_log.txt
 scraper_lib/resume_state.json
 *.log
 
+# Historical artefacts per CLAUDE.md folder layout
+cell_output/
+debug/
+manual_validation/
+scraper_lib/cell_output/
+scraper_lib/debug/
+scraper_lib/manual_validation/
+
 # Large drop-in sources that live in sibling dirs (defensive)
 Lighthouse/
 Drops/

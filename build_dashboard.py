@@ -383,20 +383,24 @@ def analysis_view_premium(dates, plans_by_cell) -> tuple[str, dict]:
             )
         lines.append("")
 
-    # GM-claimed +$50 reference + observations
-    lines += ["## Pattern observations", "",
-              "- GM-claimed view premium: **+$50 flat**.",
-              "- The rate-plan-matched empirical premium is materially below the GM's claim "
-              "in both 1BR and 2BR architectures, but unlike the prior unmatched analysis, "
-              "**there are no negative-premium cells**. Across all measured cells the view "
-              "room is priced ≥ the non-view room.",
-              "- Direct channel encodes a clean +$18 view-premium rule on both 1BR and "
-              "2BR pairs. OTAs (Booking, Hotels.com) sometimes show $0 premium but never "
-              "negative once rate-plan-matched.",
-              "- The story for the IC memo: the GM's +$50 figure is wrong in degree (~3× "
-              "overstated), but the discipline gap is smaller and cleaner than the prior "
-              "analysis suggested.",
-              ""]
+    # AKA-template "Pattern observations" block — only emit when there are
+    # actual pairs to observe. For deals with empty VIEW_PAIRS (e.g. SFOEM),
+    # the loop above produced no per-pair tables, and the hardcoded GM-claimed
+    # +$50 / "+$18 view-premium rule" copy is AKA-specific and would mislead.
+    if VIEW_PAIRS:
+        lines += ["## Pattern observations", "",
+                  "- GM-claimed view premium: **+$50 flat**.",
+                  "- The rate-plan-matched empirical premium is materially below the GM's claim "
+                  "in both 1BR and 2BR architectures, but unlike the prior unmatched analysis, "
+                  "**there are no negative-premium cells**. Across all measured cells the view "
+                  "room is priced ≥ the non-view room.",
+                  "- Direct channel encodes a clean +$18 view-premium rule on both 1BR and "
+                  "2BR pairs. OTAs (Booking, Hotels.com) sometimes show $0 premium but never "
+                  "negative once rate-plan-matched.",
+                  "- The story for the IC memo: the GM's +$50 figure is wrong in degree (~3× "
+                  "overstated), but the discipline gap is smaller and cleaner than the prior "
+                  "analysis suggested.",
+                  ""]
 
     return "\n".join(lines), payload
 
