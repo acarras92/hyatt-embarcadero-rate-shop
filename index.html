@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Hyatt Regency San Francisco Embarcadero — RM Diligence Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0a0d12;
+      --panel: #11151c;
+      --panel-2: #161b24;
+      --ink: #e6e6e6;
+      --ink-bright: #ffffff;
+      --muted: #8a92a3;
+      --muted-2: #5e6573;
+      --line: #1f2530;
+      --line-strong: #2a3140;
+      --accent: #f0b829;
+      --green: #22c55e;
+      --amber: #fbbf24;
+      --red: #ef4444;
+      --blue: #38bdf8;
+      --purple: #a78bfa;
+      --cell-low: #0f1622;
+      --cell-high: #f0b829;
+      --tabular: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Helvetica Neue", sans-serif;
+      font-size: 13px; line-height: 1.5;
+    }
+    .container { max-width: 1480px; margin: 0 auto; padding: 32px 28px 80px; }
+
+    /* Header */
+    header { border-bottom: 1px solid var(--line-strong); padding-bottom: 18px; margin-bottom: 28px; }
+    header h1 {
+      margin: 0 0 4px;
+      font-size: 22px; font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--ink-bright);
+      font-family: var(--tabular);
+    }
+    header h1::before { content: "▸ "; color: var(--accent); }
+    header .subtitle { color: var(--muted); font-size: 12px; font-family: var(--tabular); letter-spacing: 0.02em; }
+    header .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .badge-tag {
+      display: inline-block; font-size: 10px; padding: 2px 7px;
+      background: var(--panel-2); border: 1px solid var(--line-strong);
+      color: var(--muted); border-radius: 3px;
+      font-family: var(--tabular); letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .badge-tag.green { color: var(--green); border-color: rgba(34,197,94,0.3); }
+    .badge-tag.amber { color: var(--amber); border-color: rgba(251,191,36,0.3); }
+    .badge-tag.blue  { color: var(--blue);  border-color: rgba(56,189,248,0.3); }
+
+    /* Sections */
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      margin-bottom: 18px;
+      padding: 20px 22px;
+      position: relative;
+    }
+    section h2 {
+      margin: 0 0 4px;
+      font-size: 14px; font-weight: 600;
+      color: var(--ink-bright);
+      letter-spacing: 0.02em;
+      font-family: var(--tabular);
+      text-transform: uppercase;
+    }
+    section h2::before { content: "■ "; color: var(--accent); margin-right: 2px; }
+    section .h2-sub { color: var(--muted); font-size: 12px; margin-bottom: 16px; }
+    .src-tag {
+      position: absolute; top: 18px; right: 22px;
+      font-size: 9px; letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--muted-2); font-family: var(--tabular);
+      background: var(--panel-2); border: 1px solid var(--line);
+      padding: 2px 6px; border-radius: 2px;
+    }
+
+    /* Section 2 (HEADLINE) gets visual priority */
+    section.headline {
+      border-color: var(--accent);
+      border-left-width: 3px;
+      box-shadow: 0 0 0 1px rgba(240, 184, 41, 0.04);
+    }
+    section.headline > h2 { font-size: 15px; }
+    section.headline > h2::before { content: "★ "; }
+
+    /* Verdict banner */
+    .verdict-banner {
+      background: linear-gradient(180deg, var(--panel-2), var(--panel));
+      border: 1px solid var(--line-strong);
+      border-radius: 3px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+    .verdict-classification {
+      font-size: 28px; font-weight: 700; letter-spacing: -0.01em;
+      font-family: var(--tabular);
+      color: var(--ink-bright);
+    }
+    .verdict-classification.DYNAMIC,
+    .verdict-classification.YIELDS_WITH_MARKET { color: var(--green); }
+    .verdict-classification.PARTIALLY_DYNAMIC { color: var(--amber); }
+    .verdict-classification.ANCHORED { color: var(--amber); }
+    .verdict-classification.STATIC,
+    .verdict-classification.ANTI_YIELDS { color: var(--red); }
+    .verdict-classification.INSUFFICIENT_DEMAND_WINDOW { color: var(--muted); }
+    .verdict-display-label {
+      color: var(--muted); font-size: 12px; margin-top: 4px;
+      font-family: var(--tabular);
+    }
+    .verdict-rationale { color: var(--muted-2); font-size: 11px; margin-top: 8px; max-width: 800px; }
+
+    /* Rule cards */
+    .rule-card {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-left: 2px solid var(--muted);
+      padding: 12px 14px; border-radius: 3px;
+    }
+    .rule-card.pass { border-left-color: var(--green); }
+    .rule-card.fail { border-left-color: var(--red); }
+    .rule-card.skip { border-left-color: var(--muted-2); }
+    .rule-card .rule-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--tabular); margin-bottom: 8px; }
+    .rule-card .rule-value { font-size: 18px; font-weight: 600; color: var(--ink-bright); font-family: var(--tabular); font-variant-numeric: tabular-nums; }
+    .rule-card .rule-meta { color: var(--muted); font-size: 11px; margin-top: 4px; font-family: var(--tabular); }
+
+    .sub-rule {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 8px 10px; border-radius: 3px; margin-top: 8px;
+    }
+    .sub-rule .sub-label { color: var(--muted-2); font-size: 10px; font-family: var(--tabular); text-transform: uppercase; }
+    .sub-rule .sub-value { font-size: 13px; color: var(--ink-bright); font-family: var(--tabular); font-variant-numeric: tabular-nums; }
+    .sub-rule.informational { border-style: dashed; opacity: 0.85; }
+    .sub-rule.gated.pass { border-color: rgba(34,197,94,0.3); }
+    .sub-rule.gated.fail { border-color: rgba(239,68,68,0.3); }
+
+    /* KPI cards */
+    .kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+    .kpi {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-left: 2px solid var(--accent);
+      border-radius: 3px;
+      padding: 14px 16px;
+    }
+    .kpi .label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; font-family: var(--tabular); }
+    .kpi .value { font-size: 22px; font-weight: 600; color: var(--ink-bright); letter-spacing: -0.01em; font-family: var(--tabular); font-variant-numeric: tabular-nums; }
+    .kpi .delta { color: var(--blue); font-size: 11px; margin-top: 6px; font-family: var(--tabular); }
+    .kpi .ref { color: var(--muted-2); font-size: 11px; margin-top: 3px; font-family: var(--tabular); }
+
+    /* Controls */
+    .controls { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; align-items: center; }
+    .controls label { font-size: 10px; color: var(--muted); margin-right: 4px; align-self: center; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--tabular); }
+    .pill {
+      background: var(--panel-2);
+      border: 1px solid var(--line-strong);
+      border-radius: 3px;
+      padding: 4px 10px; font-size: 11px; cursor: pointer; user-select: none;
+      color: var(--muted); font-family: var(--tabular); letter-spacing: 0.02em;
+      transition: all 80ms ease;
+    }
+    .pill.active { background: var(--accent); color: #1a1300; border-color: var(--accent); font-weight: 600; }
+    .pill:hover:not(.active) { background: var(--line-strong); color: var(--ink-bright); }
+    .pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    th[role="columnheader"]:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: 11px; font-variant-numeric: tabular-nums; font-family: var(--tabular); }
+    th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: right; color: var(--ink); }
+    th:first-child, td:first-child { text-align: left; }
+    th { background: var(--panel-2); font-weight: 500; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; position: sticky; top: 0; border-bottom: 1px solid var(--line-strong); }
+
+    /* Heatmap (CSS grid) */
+    .heatmap-strip {
+      display: grid; grid-auto-flow: column; grid-auto-columns: minmax(8px, 1fr);
+      gap: 1px; background: var(--line);
+      padding: 1px; border: 1px solid var(--line-strong);
+      border-radius: 2px;
+    }
+    .heatmap-cell {
+      height: 20px; background: var(--panel-2);
+      cursor: default;
+    }
+    .heatmap-cell.empty { background: var(--panel); opacity: 0.4; }
+    .heatmap-grid {
+      display: grid; gap: 1px; background: var(--line);
+      padding: 1px; border: 1px solid var(--line-strong); border-radius: 2px;
+    }
+    .heatmap-grid .label-cell {
+      background: var(--panel-2);
+      color: var(--muted); font-size: 10px;
+      padding: 4px 6px; font-family: var(--tabular); text-align: right;
+    }
+    .heatmap-grid .data-cell {
+      background: var(--panel-2);
+      color: var(--ink); font-size: 10px;
+      padding: 4px 6px; font-family: var(--tabular);
+      text-align: center; font-variant-numeric: tabular-nums;
+    }
+    .heatmap-grid .data-cell.na { color: var(--muted-2); }
+    .heatmap-legend { display: flex; gap: 8px; align-items: center; font-size: 10px; color: var(--muted); margin-top: 6px; font-family: var(--tabular); }
+    .heatmap-legend .swatch { display: inline-block; width: 14px; height: 10px; border: 1px solid var(--line-strong); }
+
+    /* Charts */
+    .canvas-wrap { position: relative; height: 360px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; padding: 8px; }
+    .canvas-wrap.tall { height: 400px; }
+    .canvas-wrap.short { height: 220px; }
+
+    /* Layout helpers */
+    .two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; }
+    .two-eq  { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .three-eq { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+    /* Status badges */
+    .badge { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 2px; font-weight: 500; font-family: var(--tabular); }
+    .badge.warn { background: rgba(251,191,36,0.12); color: var(--amber); border: 1px solid rgba(251,191,36,0.3); }
+    .badge.red  { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+    .badge.ok   { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+    .badge.muted{ background: rgba(138,146,163,0.10); color: var(--muted); border: 1px solid var(--line-strong); }
+
+    /* Detail / collapsible */
+    details { margin-top: 10px; }
+    summary { cursor: pointer; font-size: 11px; color: var(--muted); user-select: none; font-family: var(--tabular); text-transform: uppercase; letter-spacing: 0.04em; }
+    summary:hover { color: var(--ink-bright); }
+
+    .table-wrap { max-height: 460px; overflow: auto; border: 1px solid var(--line); border-radius: 3px; background: var(--panel-2); }
+
+    .method { font-size: 12px; color: var(--muted); }
+    .method ul { padding-left: 18px; margin: 6px 0 0; }
+    .method strong { color: var(--ink); }
+    .method code { background: var(--panel-2); padding: 1px 5px; border-radius: 2px; font-family: var(--tabular); font-size: 11px; color: var(--accent); }
+    .method li { margin-bottom: 6px; }
+
+    .caveat {
+      background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.18);
+      border-left: 2px solid var(--amber);
+      padding: 10px 14px; margin: 12px 0; font-size: 12px; color: var(--ink); border-radius: 0 2px 2px 0;
+    }
+    .caveat strong { color: var(--amber); }
+    .footer {
+      color: var(--muted-2); font-size: 11px; text-align: center; margin-top: 20px;
+      font-family: var(--tabular); letter-spacing: 0.04em;
+    }
+
+    /* Custom scrollbar for dark theme */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--panel); }
+    ::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted-2); }
+
+    /* Responsive */
+    @media (max-width: 1080px) {
+      .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+      .two-col, .two-eq, .three-eq { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .container { padding: 18px 14px 60px; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .verdict-classification { font-size: 22px; }
+      section { padding: 16px 14px; }
+      .src-tag { position: static; display: inline-block; margin-top: 4px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>HYATT REGENCY SAN FRANCISCO EMBARCADERO — RM DILIGENCE</h1>
+    <div class="subtitle" id="sub-line">Loading…</div>
+    <div class="badge-row">
+      <span class="badge-tag green">LIGHTHOUSE + FIRECRAWL</span>
+      <span class="badge-tag green">RATE-PLAN MATCHED</span>
+      <span class="badge-tag" id="lh-as-of">—</span>
+      <span class="badge-tag" id="ts-badge">—</span>
+      <span class="badge-tag blue"><a href="#methodology" style="color:inherit;text-decoration:none;">METHODOLOGY ↓</a></span>
+    </div>
+  </header>
+
+  <!-- Section 1: Forward-year flatness — Lighthouse Booking.com any-tier -->
+  <section id="sec-1-flatness">
+    <span class="src-tag">LIGHTHOUSE</span>
+    <h2>1. HOW FLAT IS HYATT REGENCY SAN FRANCISCO EMBARCADERO'S RATE THROUGHOUT THE FORWARD YEAR?</h2>
+    <!-- narrative slot — author at narrative-regen step after first dashboard build:
+         describe what rate is plotted (subject Booking.com any-tier BAR), reference
+         the 8-property Lighthouse comp set, frame the flatness vs
+         active-yielding question. -->
+    <div class="h2-sub">Rate plotted: Embarcadero Booking.com any-tier non-bundled BAR. Same rate plotted for each of the 8 Lighthouse comps for context. The flatness question: is Embarcadero's rate moving across the forward year, or anchored? Active revenue management produces a continuously-moving rate; passive roll-in default rates produce long flat plateaus. This panel quantifies that distinction across the comp set.</div>
+
+    <div style="margin-bottom: 18px;">
+      <div class="h2-sub" style="margin-bottom:6px;"><strong style="color:var(--ink-bright);">Flatness scorecard</strong> · plateau detection (≥10 consecutive days within 5% day-over-day) on each property's Booking.com any-tier BAR series.</div>
+      <div class="table-wrap"><table id="flatness-scorecard"></table></div>
+      <!-- narrative slot — author at narrative-regen step after first dashboard build:
+           per-deal RM diagnosis of the flatness pattern (the AKA caveat read flatness as a
+           366-day roll-in artefact + uplift-thesis hook). For this deal, regen after looking
+           at the actual flatness scorecard and detected plateau count. -->
+      <div class="caveat" style="margin: 12px 0 0;">
+        <span id="flatness-hr_embarcadero-summary">—</span>
+      </div>
+      <!-- narrative slot — author at narrative-regen step after running phase5_plateau_sensitivity.py:
+           summarize the 4-combo sensitivity output. For AKA, this surfaced a robustness finding;
+           for this deal, run sensitivity, read the pct_flat × combo table, write the equivalent
+           paragraph. -->
+      <details style="margin-top: 10px;">
+        <summary>Methodology — sensitivity to threshold choice</summary>
+        <div class="method" style="margin-top: 10px;">
+          <p style="margin: 0;"><!-- narrative slot — per-deal sensitivity findings --></p>
+        </div>
+      </details>
+    </div>
+
+    <div id="compset-shared-legend" class="controls" style="margin-bottom: 14px;" role="group" aria-label="Toggle property visibility across all Section 1 charts"></div>
+    <div id="compset-quarterly-panels" style="display: grid; gap: 18px;"></div>
+  </section>
+
+  <!-- Section 2 (was §1): Forward demand environment -->
+  <section id="sec-2-demand">
+    <span class="src-tag">LIGHTHOUSE</span>
+    <h2>2. FORWARD DEMAND ENVIRONMENT</h2>
+    <div class="h2-sub">Where is the compression in the next 365 days? Market demand index + Market OTB across SF luxury comp set. Hover any cell for the date + value.</div>
+    <div class="caveat" style="background: rgba(56,189,248,0.06); border-color: rgba(56,189,248,0.18); border-left-color: var(--blue); margin: 8px 0 14px;">
+      <strong style="color: var(--blue);">Reading the indicators:</strong>
+      <!-- narrative slot — Lighthouse demand-index description. The AKA template referenced
+           DCA/IAD/BWI airport-demand inputs (DC market specifics); for this deal, regenerate
+           with the local market-airfare description. -->
+      Market demand index = Lighthouse proprietary 0-100% score combining competitor booking pace, market airfare demand, citywide events, group blocks. Populated for the first 60 days forward (Lighthouse's published forecasting horizon — beyond that, signal-to-noise drops too far for them to publish). Values &gt;90% = strong compression; 30-60% = normal; &lt;30% = soft demand. Market OTB = comp set's percent of inventory already on the books across the full 365-day forward year.
+    </div>
+    <div id="market-demand-strip"></div>
+    <div class="caveat" id="demand-horizon-caveat" style="display:none;">
+      <strong>Horizon caveat:</strong> Lighthouse populates Market demand for ~60 forward days only. The 365-day strip uses Market OTB for the back half. KPI #2 (days at market demand &gt; 90%) is windowed to the 60-day demand horizon.
+    </div>
+    <div style="margin-top: 16px;">
+      <div class="h2-sub" style="margin-bottom:6px;"><strong style="color:var(--ink-bright);">Top 5 forward compression dates</strong> · highest market_demand_frac in the populated window.</div>
+      <div class="table-wrap" style="max-height: 220px;"><table id="top-compression-dates"></table></div>
+    </div>
+  </section>
+
+  <!-- Section 3 (was §2): HEADLINE — Yield-discipline diagnostic -->
+  <section id="sec-3-yield-discipline" class="headline">
+    <span class="src-tag">LIGHTHOUSE + FIRECRAWL DRILL</span>
+    <h2>3. Embarcadero vs COMP-SET MEDIAN — DOES Embarcadero YIELD INTO COMPRESSION?</h2>
+    <div class="h2-sub">In the populated Lighthouse demand window (~60 forward days), how does Embarcadero price relative to the comp-set median, and does that gap widen on high-demand days (yielding) or stay flat / narrow (anchored)? No proprietary baseline — two daily numbers and their difference, bucketed by demand intensity.</div>
+
+    <div class="verdict-banner">
+      <div class="verdict-classification" id="verdict-class">—</div>
+      <div class="verdict-display-label" id="verdict-label">—</div>
+      <div class="verdict-rationale" id="verdict-rationale">—</div>
+    </div>
+
+    <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr); margin-top: 14px;">
+      <div class="kpi">
+        <div class="label">Typical Embarcadero premium / (discount)</div>
+        <div class="value" id="kpi-delta-typical">—</div>
+        <div class="ref" id="kpi-delta-typical-ref">— normal-demand dates</div>
+      </div>
+      <div class="kpi">
+        <div class="label">High-demand Embarcadero premium / (discount)</div>
+        <div class="value" id="kpi-delta-high">—</div>
+        <div class="ref" id="kpi-delta-high-ref">— high-demand dates</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Spread movement (high − typical)</div>
+        <div class="value" id="kpi-spread-movement">—</div>
+        <div class="ref" id="kpi-spread-movement-ref">positive = Embarcadero yields up · negative = anti-yields</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 18px;">
+      <div class="h2-sub" style="margin-bottom:8px;">
+        <strong style="color:var(--ink-bright);">Embarcadero vs comp-set median across the demand window</strong>
+        · vertical bands flag high-demand dates (market_demand_frac ≥ 0.80).
+      </div>
+      <div class="canvas-wrap"><canvas id="subject-vs-comp-chart"></canvas></div>
+    </div>
+
+    <details style="margin-top: 14px;">
+      <summary>Methodology — bucket boundaries, comp set, panel composition, sensitivity</summary>
+      <div class="method" id="subject-vs-comp-methodology" style="margin-top: 10px;"></div>
+    </details>
+  </section>
+
+  <!-- Section 4: AKA Sunday tier ladder (Firecrawl) -->
+  <section id="sec-4-tier-ladder">
+    <span class="src-tag">FIRECRAWL</span>
+    <h2>4. Embarcadero RATE TIER LADDER (FIRECRAWL · SUNDAYS ONLY)</h2>
+    <!-- narrative slot — author at narrative-regen step:
+         describe Section 4 scope, Sunday-only filter rationale, view-premium delta
+         interpretation. Per Resolution 3, hide GM reference if gm_claimed_view_premium_usd
+         is null. -->
+    <div class="h2-sub">Median Firecrawl Direct BAR by canonical room SKU, restricted to Sunday arrival dates. Sunday-only filter: weekday rates are RM-yielded and obscure the BAR architecture; Sundays surface the system rolling-default rate before RM intervenes. View-premium deltas reference the GM-claimed $0 view premium.</div>
+    <div class="canvas-wrap"><canvas id="aka-tier-ladder"></canvas></div>
+    <div id="aka-tier-ladder-deltas" style="margin-top: 10px; font-family: var(--tabular); font-size: 11px; color: var(--ink); font-variant-numeric: tabular-nums;"></div>
+    <!-- narrative slot — author at narrative-regen step after first Sunday tier-ladder build:
+         the AKA caveat covered three points (Sunday-rationale framing, asymmetric-panel
+         disclosure, per-date exclusions). For this deal, write the equivalent disclosures
+         after looking at actual Sunday observability + exclusions. -->
+    <div class="caveat" id="hr_embarcadero-tier-ladder-caveat" style="border-style: dashed;">
+      <p style="margin: 0 0 8px;"><span id="hr_embarcadero-tier-ladder-n">—</span> Sundays observed: Embarcadero Direct only.</p>
+      <p style="margin: 0;"><!-- narrative slot — per-deal Sunday observability + exclusions --></p>
+    </div>
+  </section>
+
+  <!-- Section 5 (was §6): LOS-restriction trigger -->
+  <section id="sec-5-los">
+    <span class="src-tag">LIGHTHOUSE</span>
+    <h2>5. LOS-RESTRICTION TRIGGER PATTERN</h2>
+    <div class="h2-sub">Dates × properties where Booking.com any-tier shows a LOS restriction (LOS2 / LOS3). Compression-driven minimum-stay throws.</div>
+    <div id="los-grid"></div>
+  </section>
+
+  <!-- Section 6 (was §7): Raw data explorer -->
+  <section id="sec-6-explorer">
+    <span class="src-tag">LIGHTHOUSE OR FIRECRAWL</span>
+    <h2>6. RAW DATA EXPLORER</h2>
+    <div class="h2-sub">Three underlying data sources. <strong style="color:var(--ink-bright);">Firecrawl rate-shop</strong> = AKA cross-channel rate cells (Direct / Hotels.com / Booking; per arrival_date × room_type_canonical × rate_plan), used to seed Section 4's Sunday tier ladder. <strong style="color:var(--ink-bright);">Lighthouse market context</strong> = proprietary 0-100% demand index + comp-set OTB pacing (one row per arrival date), used by Section 2's forward-demand strip and Section 3's bucket boundaries. <strong style="color:var(--ink-bright);">Lighthouse rates</strong> = per-property × per-date Booking.com any-tier rate cells that drive Section 1's flatness scorecard / quarterly panels and Section 3's subject-vs-comp-median spread. Click a column header to sort; type in the filter box to narrow rows.</div>
+    <div class="controls" style="margin-bottom:10px;" role="group" aria-label="Raw data explorer source toggle">
+      <label id="explorer-source-label">Source:</label>
+      <span class="pill active" data-explorer-source="firecrawl"
+            tabindex="0" role="button" aria-pressed="true"
+            aria-labelledby="explorer-source-label">Firecrawl rate-shop (47 rows)</span>
+      <span class="pill" data-explorer-source="lighthouse"
+            tabindex="0" role="button" aria-pressed="false"
+            aria-labelledby="explorer-source-label">Lighthouse market context (366 rows)</span>
+      <span class="pill" data-explorer-source="lighthouse_rates"
+            tabindex="0" role="button" aria-pressed="false"
+            aria-labelledby="explorer-source-label">Lighthouse rates (per-property, ~2000 rows)</span>
+      <label for="explorer-filter" style="margin-left:18px;">Filter:</label>
+      <input id="explorer-filter" placeholder="filter rows…" aria-label="Filter explorer rows"
+             style="background:var(--panel-2); border:1px solid var(--line-strong); color:var(--ink); padding:4px 8px; border-radius:3px; font-family:var(--tabular); font-size:11px; width:220px;" />
+      <span class="badge muted" id="explorer-rowcount" aria-live="polite">— rows</span>
+    </div>
+    <div class="table-wrap" style="max-height: 480px;"><table id="explorer-table"></table></div>
+  </section>
+
+  <!-- Methodology footer -->
+  <section id="methodology">
+    <span class="src-tag">METHODOLOGY</span>
+    <h2>METHODOLOGY &amp; CAVEATS</h2>
+    <div class="method" id="methodology-body">—</div>
+  </section>
+
+  <div class="footer">
+    Built with Lighthouse Rate Insight (institutional, 365d forward) + Firecrawl scrape (room-type-level depth, 15-date matrix).
+    SF luxury comp set: SoMa, Clancy, Hilton Union Sq, Grand Hyatt, Palace, Marquis, InterContinental, Westin St. Francis.
+    <!-- narrative slot — append any data-hygiene exclusions surfaced during this scrape -->
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<script src="data.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>

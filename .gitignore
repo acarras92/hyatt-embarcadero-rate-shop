@@ -1,0 +1,44 @@
+# Python build artefacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Secrets / config
+.env
+.env.local
+*.key
+*.pem
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.bak
+
+# Operational state (regenerated each run; not source-of-truth)
+scraper_lib/scrape_log.txt
+scraper_lib/resume_state.json
+*.log
+
+# Large drop-in sources that live in sibling dirs (defensive)
+Lighthouse/
+Drops/
+
+# Local temp verifier scripts
+_verify_*.py
